@@ -1,8 +1,17 @@
 package com.example.yiy.parkingucr;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -23,8 +32,10 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
+import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.SimpleAdapter;
 
@@ -32,6 +43,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,11 +63,30 @@ public class MainActivity extends AppCompatActivity
     };
 
     private SimpleAdapter adapter;
+    private PendingIntent pendingIntent = null;
+
+    private static final int SHOW_DATAPICK = 0;   //这4个是时间方面的.
+    private static final int DATE_DIALOG_ID = 1;
+    private static final int SHOW_TIMEPICK = 2;
+    private static final int TIME_DIALOG_ID = 3;
+
 
     private final static int NULLS = 0; //off-line
     private final static int NULLDATA = 1; // Search error
     private final static int DATA = 2;
-    String time;
+    String update_time;
+    private String date;
+    private String time;
+
+    List<Map<String, Object>> listviews;
+    private ListView listview_data;
+    private Dialogs dialogs;
+
+    private int mYear;    //依然是时间方面移植来的
+    private int mMonth;
+    private int mDay;
+    private int mHour;
+    private int mMinute;
 
     private Handler handler = new Handler() {
         public void handleMessage(Message msg) {
@@ -82,7 +113,7 @@ public class MainActivity extends AppCompatActivity
                             new int[]{
                              R.id.location_address, R.id.location_name, R.id.total_spaces, R.id.free_spaces});
 //                    dialogs.dialog.dismiss();
-                    ToastUtil.showToast(MainActivity.this, "Last modified:  " + time.substring(0,20));
+                    ToastUtil.showToast(MainActivity.this, "Last modified:  " + update_time.substring(0,20));
                     /*特效源码！！*/
                     listview_data.setLayoutAnimation(getListAnim());
                     listview_data.setAdapter(adapter);
@@ -93,15 +124,93 @@ public class MainActivity extends AppCompatActivity
         ;
     };
 
-    List<Map<String, Object>> listviews;
-    private ListView listview_data;
+    /**
+     * --------------------以下为日期选择方面,移植来的--------------------
+     */
+    private void setDateTime() {
+        final Calendar c = Calendar.getInstance();
+        mYear = c.get(Calendar.YEAR);
+        mMonth = c.get(Calendar.MONTH);
+        mDay = c.get(Calendar.DAY_OF_MONTH);
+        updateDateDisplay();
+    }
+
+    private void updateDateDisplay() {
+        date = new StringBuilder().append(mYear).append("-").append((mMonth + 1) < 10 ? "0" + (mMonth + 1) : (mMonth + 1)).append("-").append((mDay < 10) ? "0" + mDay : mDay) + "";
+    }
+    private void updateTimeDisplay() {
+        time = new StringBuilder().append(mHour).append(":").append(mMinute)+ "";
+    }
+
+    private DatePickerDialog.OnDateSetListener mDateSetListener = new DatePickerDialog.OnDateSetListener() {
+
+        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+            mYear = year;
+            mMonth = monthOfYear;
+            mDay = dayOfMonth;
+            /*------这是提示框的确认按钮,点击后选择时间,然后得到网址,执行线程--------*/
+            updateDateDisplay();
+            System.out.println("这是日期选取："+ date);
+
+        }
+    };
+    private TimePickerDialog.OnTimeSetListener mTimeSetListener = new TimePickerDialog.OnTimeSetListener(){
+
+        @Override
+        public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+            mHour = hour;
+            mMinute = minute;
+            updateTimeDisplay();
+            System.out.println("这是时间选取："+ time);
+            alarmMethod();
+        }
+    };
+
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        switch (id) {
+            case DATE_DIALOG_ID:
+                return new DatePickerDialog(this, mDateSetListener, mYear, mMonth, mDay);
+            case TIME_DIALOG_ID:
+                return new TimePickerDialog(this, mTimeSetListener, mHour, mMinute, true);
+        }
+        return null;
+    }
+
+    @Override
+    protected void onPrepareDialog(int id, Dialog dialog) {
+        switch (id) {
+            case DATE_DIALOG_ID:
+                ((DatePickerDialog) dialog).updateDate(mYear, mMonth, mDay);
+                break;
+            case TIME_DIALOG_ID:
+                ((TimePickerDialog) dialog).updateTime(mHour, mMinute);
+                break;
+        }
+    }
+
+    Handler dateandtimeHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MainActivity.SHOW_DATAPICK:
+                    showDialog(DATE_DIALOG_ID);
+                    break;
+                case MainActivity.SHOW_TIMEPICK:
+                    showDialog(TIME_DIALOG_ID);
+                    break;
+            }
+        }
+    };
+    /**------------------------------以上为日期选取-------------------------------------*/
+
 
 
     private void refresh(){
         System.out.println("-----进入Refresh-----");
         listviews = null;
         listviews = new ArrayList<Map<String, Object>>();
-//        onCreate();
         new Thread(new SearchThread()).start();//启动线程,下载内容
         System.out.println("查询线程已经启动");
     }
@@ -111,6 +220,17 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         listview_data = findViewById(R.id.listview_data);
+
+        /*------------下面这段是写时间选择方面的--------------*/
+        final Calendar c = Calendar.getInstance();
+        dialogs = new Dialogs(MainActivity.this);
+        mYear = c.get(Calendar.YEAR);
+        mMonth = c.get(Calendar.MONTH);
+        mDay = c.get(Calendar.DAY_OF_MONTH);
+        mHour = c.get(Calendar.HOUR_OF_DAY);
+        mMinute = c.get(Calendar.MINUTE);
+        /*------------------------------------------------------*/
+
 
         //toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -195,7 +315,7 @@ public class MainActivity extends AppCompatActivity
                         map.put("date_time", date_time);
                         listviews.add(map);
                         System.out.println("这是listviews ---" + listviews);
-                        time = date_time;
+                        update_time = date_time;
                         Message msg = new Message();
                         msg.what = DATA;
                         handler.sendMessage(msg);
@@ -283,7 +403,14 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            // Handle the camera action
+            // Handle the reminder
+            Message msg1 = new Message();
+            msg1.what = MainActivity.SHOW_TIMEPICK;
+            MainActivity.this.dateandtimeHandler.sendMessage(msg1);
+            Message msg = new Message();
+            msg.what = MainActivity.SHOW_DATAPICK;
+            MainActivity.this.dateandtimeHandler.sendMessage(msg);
+//            alarmMethod();
         } else if (id == R.id.nav_gallery) {
 
         } else if (id == R.id.nav_slideshow) {
@@ -295,9 +422,67 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_send) {
 
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+//code from : https://blog.csdn.net/qq_16628781/article/details/51548324
+    private void alarmMethod(){
+        System.out.println("-----进入alarmMethod-----");
+
+//        NotificationManager nm = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+//        Intent intent = new Intent();//这个intent会传给目标,可以使用getIntent来获取
+//        intent.setClass(this, MainActivity.class);
+//        //这里放一个count用来区分每一个通知
+//        intent.putExtra("intent", "intent--->" + count);//这里设置一个数据,带过去
+//
+//        //参数1:context 上下文对象
+//        //参数2:发送者私有的请求码(Private request code for the sender)
+//        //参数3:intent 意图对象
+//        //参数4:必须为FLAG_ONE_SHOT,FLAG_NO_CREATE,FLAG_CANCEL_CURRENT,FLAG_UPDATE_CURRENT,中的一个
+//        pendingIntent = PendingIntent.getActivity(this, count, intent, PendingIntent.FLAG_CANCEL_CURRENT);//用户点击该notification后才启动SecondActivity类
+//
+//        intent.putExtra("intent", "other intent--->" + count);
+//        Uri uri = Uri.parse("http:///baidu.com");//我这里还可以给一个uri参数,点击notification可以打开百度首页,但是intent.setClass就不可以要了
+//        intent.setData(uri);//设置uri到intent中
+//        intent.setAction(Intent.ACTION_VIEW);//设置为展示uri的内容,系统会自动给出可以打开uri的应用,需要你选择
+//        //用bundle来传参
+//        Bundle bundle = new Bundle();
+//        bundle.putString("key", "bundle string--->" + count);
+//        intent.putExtra("bundle", bundle);//这里把bundle放到intent中,可以在SecondActivity获取出来
+//
+//        //参数1,2,3,4和前面的一样
+//        //最后一个参数是:指定目标activity如何创建的额外参数
+//        pendingIntent = PendingIntent.getActivity(this, count, intent, PendingIntent.FLAG_ONE_SHOT, bundle);//API 16以上
+////        pi = PendingIntent.getService(this, 102, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+//
+//        Notification.Builder builder = new Notification.Builder(this)
+//                .setSmallIcon(R.mipmap.ic_launcher)
+//                .setContentIntent(pendingIntent)
+//                .setContentText("this is notification contentText msg--->" + count)
+//                .setContentTitle("this is contentTitle--->" + count)
+//                .setTicker("this is msg's hint count--->" + count)
+//                .setNumber(count);
+////        Notification no = new Notification.Builder(this).build();//这个需要在API 16以上才可以用,我这里向下兼容到API 14(4.0)
+//        Notification notify2 = builder.getNotification();//而getNotification()方法已经被弃用了
+//        count++;
+//        notify2.flags |= Notification.FLAG_AUTO_CANCEL;//这里指定这个通知点击之后或者可以被清除按钮清除。 FLAG_NO_CLEAR 通知不能取消
+//        //参数1:此notification的识别好
+//        nm.notify(101, notify2);
+
+        Intent myIntent = new Intent(this , NotifyService.class);
+        AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+        pendingIntent = PendingIntent.getService(this, 0, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.SECOND,0);
+        calendar.set(Calendar.MINUTE, mMinute);
+        calendar.set(Calendar.HOUR_OF_DAY, mHour);
+        calendar.set(Calendar.DAY_OF_MONTH,mDay);
+        calendar.set(Calendar.MONTH,mMonth);
+        calendar.set(Calendar.YEAR,mYear);
+
+        alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+        }
+
 }

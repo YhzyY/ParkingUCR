@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.yiy.parkingucr">
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
 
     <application
         android:allowBackup="true"
@@ -20,6 +22,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service android:name=".NotifyService"
+            android:enabled="true"
+            android:process=":remote"/>
+
+        <!--<receiver android:name=".AlarmReceiver">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="com.e_eduspace.TIMER_ACTION_REPEATING" />-->
+                <!--<action android:name="com.e_eduspace.TIMER_ACTION" />-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
+
+        <receiver
+            android:name=".AlarmReceiver"
+            android:process=":remote" />
+
     </application>
 
 </manifest>
