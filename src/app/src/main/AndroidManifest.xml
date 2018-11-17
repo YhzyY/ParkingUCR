@@ -22,21 +22,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".myNotification"/>
         <service android:name=".NotifyService"
             android:enabled="true"
             android:process=":remote"/>
-
-        <!--<receiver android:name=".AlarmReceiver">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="com.e_eduspace.TIMER_ACTION_REPEATING" />-->
-                <!--<action android:name="com.e_eduspace.TIMER_ACTION" />-->
-            <!--</intent-filter>-->
-        <!--</receiver>-->
-
-        <receiver
-            android:name=".AlarmReceiver"
-            android:process=":remote" />
 
     </application>
 

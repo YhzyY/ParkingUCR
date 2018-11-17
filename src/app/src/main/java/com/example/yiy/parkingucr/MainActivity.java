@@ -401,7 +401,7 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.notification) {
             // Handle the reminder
             Message msg1 = new Message();
             msg1.what = MainActivity.SHOW_TIMEPICK;
@@ -428,47 +428,6 @@ public class MainActivity extends AppCompatActivity
 //code from : https://blog.csdn.net/qq_16628781/article/details/51548324
     private void alarmMethod(){
         System.out.println("-----进入alarmMethod-----");
-
-//        NotificationManager nm = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-//        Intent intent = new Intent();//这个intent会传给目标,可以使用getIntent来获取
-//        intent.setClass(this, MainActivity.class);
-//        //这里放一个count用来区分每一个通知
-//        intent.putExtra("intent", "intent--->" + count);//这里设置一个数据,带过去
-//
-//        //参数1:context 上下文对象
-//        //参数2:发送者私有的请求码(Private request code for the sender)
-//        //参数3:intent 意图对象
-//        //参数4:必须为FLAG_ONE_SHOT,FLAG_NO_CREATE,FLAG_CANCEL_CURRENT,FLAG_UPDATE_CURRENT,中的一个
-//        pendingIntent = PendingIntent.getActivity(this, count, intent, PendingIntent.FLAG_CANCEL_CURRENT);//用户点击该notification后才启动SecondActivity类
-//
-//        intent.putExtra("intent", "other intent--->" + count);
-//        Uri uri = Uri.parse("http:///baidu.com");//我这里还可以给一个uri参数,点击notification可以打开百度首页,但是intent.setClass就不可以要了
-//        intent.setData(uri);//设置uri到intent中
-//        intent.setAction(Intent.ACTION_VIEW);//设置为展示uri的内容,系统会自动给出可以打开uri的应用,需要你选择
-//        //用bundle来传参
-//        Bundle bundle = new Bundle();
-//        bundle.putString("key", "bundle string--->" + count);
-//        intent.putExtra("bundle", bundle);//这里把bundle放到intent中,可以在SecondActivity获取出来
-//
-//        //参数1,2,3,4和前面的一样
-//        //最后一个参数是:指定目标activity如何创建的额外参数
-//        pendingIntent = PendingIntent.getActivity(this, count, intent, PendingIntent.FLAG_ONE_SHOT, bundle);//API 16以上
-////        pi = PendingIntent.getService(this, 102, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-//
-//        Notification.Builder builder = new Notification.Builder(this)
-//                .setSmallIcon(R.mipmap.ic_launcher)
-//                .setContentIntent(pendingIntent)
-//                .setContentText("this is notification contentText msg--->" + count)
-//                .setContentTitle("this is contentTitle--->" + count)
-//                .setTicker("this is msg's hint count--->" + count)
-//                .setNumber(count);
-////        Notification no = new Notification.Builder(this).build();//这个需要在API 16以上才可以用,我这里向下兼容到API 14(4.0)
-//        Notification notify2 = builder.getNotification();//而getNotification()方法已经被弃用了
-//        count++;
-//        notify2.flags |= Notification.FLAG_AUTO_CANCEL;//这里指定这个通知点击之后或者可以被清除按钮清除。 FLAG_NO_CLEAR 通知不能取消
-//        //参数1:此notification的识别好
-//        nm.notify(101, notify2);
-
         Intent myIntent = new Intent(this , NotifyService.class);
         AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
         pendingIntent = PendingIntent.getService(this, 0, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
