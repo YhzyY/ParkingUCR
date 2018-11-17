@@ -112,7 +112,6 @@ public class MainActivity extends AppCompatActivity
                             "location_address", "location_name", "total_spaces", "free_spaces"},
                             new int[]{
                              R.id.location_address, R.id.location_name, R.id.total_spaces, R.id.free_spaces});
-//                    dialogs.dialog.dismiss();
                     ToastUtil.showToast(MainActivity.this, "Last modified:  " + update_time.substring(0,20));
                     /*特效源码！！*/
                     listview_data.setLayoutAnimation(getListAnim());
@@ -208,7 +207,6 @@ public class MainActivity extends AppCompatActivity
 
 
     private void refresh(){
-        System.out.println("-----进入Refresh-----");
         listviews = null;
         listviews = new ArrayList<Map<String, Object>>();
         new Thread(new SearchThread()).start();//启动线程,下载内容
@@ -219,6 +217,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        refresh();
         listview_data = findViewById(R.id.listview_data);
 
         /*------------下面这段是写时间选择方面的--------------*/
