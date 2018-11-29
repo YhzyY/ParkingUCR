@@ -9,9 +9,9 @@
             android:icon="@drawable/ic_menu_camera"
             android:title="notification" />
         <item
-            android:id="@+id/nav_gallery"
+            android:id="@+id/GPS"
             android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:title="GPS" />
         <item
             android:id="@+id/nav_slideshow"
             android:icon="@drawable/ic_menu_slideshow"

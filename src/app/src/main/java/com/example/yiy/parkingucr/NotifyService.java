@@ -1,9 +1,13 @@
 package com.example.yiy.parkingucr;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -11,11 +15,14 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.yiy.Util.HtmlService;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import static android.content.ContentValues.TAG;
 
 public class NotifyService extends Service {
     @Override
@@ -52,15 +59,57 @@ public class NotifyService extends Service {
         Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         Intent intent = new Intent(this.getApplicationContext(), MainActivity.class);
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+//
+//        String id = "my_channel_01";
+//        String name="我是渠道名字";
+//        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+//        Notification notification = null;
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            NotificationChannel mChannel = new NotificationChannel(id, name, NotificationManager.IMPORTANCE_LOW);
+//            Log.i(TAG, mChannel.toString());
+//            notificationManager.createNotificationChannel(mChannel);
+//            notification = new Notification.Builder(this)
+//                    .setChannelId(id)
+//                    .setContentTitle("5 new messages")
+//                    .setContentText("hahaha")
+//                    .setSmallIcon(R.mipmap.ic_launcher).build();
+//        } else {
+//            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+//                    .setContentTitle("5 new messages")
+//                    .setContentText("hahaha")
+//                    .setSmallIcon(R.mipmap.ic_launcher)
+//                    .setOngoing(true);
+//            notification = notificationBuilder.build();
+//        }
+//        notificationManager.notify(111123, notification);
 
-        String channelid = "1";
-        Notification notification = new NotificationCompat.Builder(this, channelid)
-                .setSmallIcon(R.drawable.ic_menu_camera)
+
+        String id = "my_channel_01";
+        String name="channel_name";
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        Notification notification;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel mChannel = new NotificationChannel(id, name, NotificationManager.IMPORTANCE_LOW);
+            Log.i(TAG, mChannel.toString());
+            notificationManager.createNotificationChannel(mChannel);
+            notification = new Notification.Builder(this)
+                    .setChannelId(id)
+                    .setSound(sound)
+                    .setContentTitle("ParkingUCR")
+                    .setContentText("the latest information about parking spaces is available")
+                    .setTicker("ParkingUCR notification")
+                    .setContentIntent(pIntent)
+                    .setSmallIcon(R.mipmap.ic_launcher).build();
+            notification.flags |= Notification.FLAG_AUTO_CANCEL;
+        } else {
+            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setSound(sound)
                 .setContentTitle("ParkingUCR")
                 .setContentText("the latest information about parking spaces is available")
                 .setTicker("ParkingUCR notification")
                 .setContentIntent(pIntent)
+                .setChannelId("channelID")
                 .setStyle(new NotificationCompat.InboxStyle()
                         .addLine("Lot name: " + getData[0] + ", free sapces: " + getData[1])
                         .addLine("Lot name: " + getData[2] + ", free sapces: " + getData[3])
@@ -68,10 +117,35 @@ public class NotifyService extends Service {
                         .addLine("Lot name: " + getData[6] + ", free sapces: " + getData[7])
                         .addLine("Lot name: " + getData[8] + ", free sapces: " + getData[9])
                         .addLine("Lot name: " + getData[10] + ", free sapces: " + getData[11]))
-                .build();
-        notification.flags |= Notification.FLAG_AUTO_CANCEL;
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        notificationManager.notify(11132, notification);
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setOngoing(true);
+            notification = notificationBuilder.build();
+            notification.flags |= Notification.FLAG_AUTO_CANCEL;
+        }
+        notificationManager.notify(111123, notification);
+
+//
+//        String channelid = "456789";
+//        Notification notification = new NotificationCompat.Builder(this,channelid)
+//                .setSmallIcon(R.drawable.ic_menu_camera)
+//                .setSound(sound)
+//                .setContentTitle("ParkingUCR")
+//                .setContentText("the latest information about parking spaces is available")
+//                .setTicker("ParkingUCR notification")
+//                .setContentIntent(pIntent)
+//                .setChannelId("channelID")
+//                .setStyle(new NotificationCompat.InboxStyle()
+//                        .addLine("Lot name: " + getData[0] + ", free sapces: " + getData[1])
+//                        .addLine("Lot name: " + getData[2] + ", free sapces: " + getData[3])
+//                        .addLine("Lot name: " + getData[4] + ", free sapces: " + getData[5])
+//                        .addLine("Lot name: " + getData[6] + ", free sapces: " + getData[7])
+//                        .addLine("Lot name: " + getData[8] + ", free sapces: " + getData[9])
+//                        .addLine("Lot name: " + getData[10] + ", free sapces: " + getData[11]))
+//                .build();
+//        notification.flags |= Notification.FLAG_AUTO_CANCEL;
+//        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+//        notificationManager.notify(11132, notification);
+
 
 //        NotificationManager mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 //        Notification mNotify = new Notification.Builder(this)
