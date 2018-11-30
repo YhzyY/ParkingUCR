@@ -14,6 +14,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -74,6 +75,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Current_Lat = String.valueOf(location.getLatitude());
 
         System.out.println("这里是具体结果：longtitude : " + Current_Long + "latitude : " + Current_Lat);
+
+        double CurrLat = Double.valueOf(Current_Lat);
+        double CurrLon = Double.valueOf(Current_Long);
+        LatLng Loc_Current = new LatLng(CurrLat, CurrLon);
+        mMap.addMarker(new MarkerOptions().position(Loc_Current).title("This is you current address").icon(BitmapDescriptorFactory
+                .defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(Loc_Current));
     }
 
     @Override
@@ -128,12 +136,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng Loc_BigSprings = new LatLng(33.975179, -117.320979);
         mMap.addMarker(new MarkerOptions().position(Loc_BigSprings).title("Big Springs Road Parking Lot"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(Loc_BigSprings));
-//
-//        LatLng Loc_Current = new LatLng(currlat, currlon);
-//        mMap.addMarker(new MarkerOptions().position(Loc_Current).title("This is you current address"));
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(Loc_Current));
-
-
 
     }
 
