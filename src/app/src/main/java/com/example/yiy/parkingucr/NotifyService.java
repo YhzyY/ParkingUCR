@@ -96,7 +96,7 @@ public class NotifyService extends Service {
                     .setChannelId(id)
                     .setSound(sound)
                     .setContentTitle("ParkingUCR")
-                    .setContentText("the latest information about parking spaces is available")
+                    .setContentText("click to see the latest information")
                     .setTicker("ParkingUCR notification")
                     .setContentIntent(pIntent)
                     .setSmallIcon(R.mipmap.ic_launcher).build();
@@ -106,7 +106,7 @@ public class NotifyService extends Service {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setSound(sound)
                 .setContentTitle("ParkingUCR")
-                .setContentText("the latest information about parking spaces is available")
+                .setContentText("click to see the latest information")
                 .setTicker("ParkingUCR notification")
                 .setContentIntent(pIntent)
                 .setChannelId("channelID")

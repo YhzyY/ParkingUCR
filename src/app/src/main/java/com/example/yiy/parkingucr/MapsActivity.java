@@ -49,6 +49,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         locationManager.removeUpdates(this);
     }
 
+    //some code from Atik Hasan: https://www.youtube.com/watch?v=n2zuIcJblUo
     public void getLocation() {
         try {
             locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -82,6 +83,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(new MarkerOptions().position(Loc_Current).title("This is you current address").icon(BitmapDescriptorFactory
                 .defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(Loc_Current));
+
+//        double toLot32 = getDistance(CurrLat,CurrLon,33.970106, -117.33114);
+//        double toLot30 = getDistance(CurrLat,CurrLon,33.969962, -117.33186);
+//        double toLot26 = getDistance(CurrLat,CurrLon,33.981603, -117.334914);
+//        double toLot24 = getDistance(CurrLat,CurrLon,33.978089, -117.330567);
+//        double toLot6 = getDistance(CurrLat,CurrLon,33.969771, -117.327454);
+//        double toLotBigS = getDistance(CurrLat,CurrLon,33.975179, -117.320979);
+//
+//
     }
 
     @Override
@@ -112,7 +122,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
+        // Add a marker and move the camera
         LatLng Loc_Lot32 = new LatLng(33.970106, -117.33114);
         mMap.addMarker(new MarkerOptions().position(Loc_Lot32).title("Lot32"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(Loc_Lot32));
@@ -137,6 +147,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(new MarkerOptions().position(Loc_BigSprings).title("Big Springs Road Parking Lot"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(Loc_BigSprings));
 
+    }
+
+    private static double EARTH_RADIUS = 6378.137;
+
+    private static double rad(double d) {
+        return d * Math.PI / 180.0;
+    }
+
+    public static double getDistance(double lat1, double lng1, double lat2,
+                                     double lng2) {
+        double radLat1 = rad(lat1);
+        double radLat2 = rad(lat2);
+        double a = radLat1 - radLat2;
+        double b = rad(lng1) - rad(lng2);
+        double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2)
+                + Math.cos(radLat1) * Math.cos(radLat2)
+                * Math.pow(Math.sin(b / 2), 2)));
+        s = s * EARTH_RADIUS;
+        s = Math.round(s * 10000d) / 10000d;
+        s = s*1000;
+        return s;
     }
 
 }
