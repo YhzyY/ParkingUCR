@@ -5,13 +5,13 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
+            android:id="@+id/notification"
+            android:icon="@mipmap/clock"
+            android:title="notification" />
         <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:id="@+id/GPS"
+            android:icon="@mipmap/place_on_map"
+            android:title="GPS" />
         <item
             android:id="@+id/nav_slideshow"
             android:icon="@drawable/ic_menu_slideshow"
@@ -20,10 +20,6 @@
             android:id="@+id/nav_manage"
             android:icon="@drawable/ic_menu_manage"
             android:title="Tools" />
-        <!--<item-->
-            <!--android:id="@+id/GPS"-->
-            <!--android:icon="@mipmap/ic_refresh"-->
-            <!--android:title="GPS" />-->
     </group>
 
     <item android:title="Communicate">
